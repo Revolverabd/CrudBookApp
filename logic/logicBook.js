@@ -5,12 +5,24 @@ const fs = require('fs');
 
 // const csv = require('csvtojson');
 
-let csvToJson = require('convert-csv-to-json');
+const csvToJson = require('convert-csv-to-json');
 
 const { Parser } = require('json2csv');
 
+const transform = require('../helpers/transformData.js');
+
+
+
 let listBooks = [];
 
+// const transformData = () => {
+
+//     const json2csvParser = new Parser({ header: false });
+//     let csv = json2csvParser.parse(listBooks);
+
+//     listBooks = csv;
+
+// }
 const saveDB = () => {
 
     fs.writeFile('db/data.csv', listBooks.replace(/['"]+/g, '') + '\n', { flag: 'a' }, (err) => {
@@ -40,26 +52,40 @@ const uploadLisBook = () => {
     listBooks = csvToJson.fieldDelimiter(',').formatValueByType().getJsonFromCsv('db/data.csv');
 
 }
+
+
+
+
+
+
+
 const createBook = (isbn, title, author) => {
 
-    // let isbn = isbns.toString();
+    uploadLisBook();
+
     let book = {
         isbn,
         title,
         author
     };
 
-    const json2csvParser = new Parser({
-        header: false,
-        escapedQuote: ' '
-    });
-    let csv = json2csvParser.parse(book);
+    let index = listBooks.findIndex(task => task.isbn === isbn);
 
-    listBooks = csv;
+    if (index >= 0) {
 
-    saveDB();
+        console.log(`The ISBN: ${isbn} entered already exists`)
 
-    return true;
+        return false;
+    
+    } else {
+
+        listBooks = book;
+        listBooks = transform.transformData(listBooks);
+        saveDB();
+
+        return true;
+    }
+
 
 }
 
