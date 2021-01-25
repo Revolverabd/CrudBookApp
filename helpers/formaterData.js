@@ -1,7 +1,7 @@
 const { Parser } = require('json2csv');
 
 
-const transformData = (data) => {
+const formaterData = (data) => {
 
     const json2csvParser = new Parser({ header: false });
     let csv = json2csvParser.parse(data);
@@ -10,5 +10,5 @@ const transformData = (data) => {
 }
 
 module.exports = {
-    transformData
+    formaterData
 }

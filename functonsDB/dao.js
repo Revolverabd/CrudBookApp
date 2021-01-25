@@ -5,20 +5,20 @@ const csvToJson = require('convert-csv-to-json');
 
 const saveDB = (listBooks) => {
 
-   let emptyData = uploadLisBook();
-   
-    if (emptyData.length > 0){
+    let emptyData = uploadLisBook();
+
+    if (emptyData.length > 0) {
 
         fs.writeFile('db/data.csv', listBooks.replace(/['"]+/g, '') + '\n', { flag: 'a' }, (err) => {
             if (err) throw new Error('Could not be saved')
         });
 
         return true;
-        
-    }else{
 
-        let head = `isbn,title,author\n${listBooks}`;
-    
+    } else {
+
+        let head = `isbn,title,author\n${listBooks}\n`;
+
         fs.writeFile('db/data.csv', head.replace(/['"]+/g, ''), { flag: 'a' }, (err) => {
             if (err) throw new Error('Could not be saved')
         });
@@ -32,28 +32,25 @@ const saveDB = (listBooks) => {
 const uploadLisBook = () => {
 
     let data = csvToJson.fieldDelimiter(',').formatValueByType().getJsonFromCsv('db/data.csv');
-    return data; 
+    return data;
 
 }
 
 const updateDB = (listBooks) => {
 
-    let head = 'isbn,title,author';
+    let head = 'isbn,title,author\n';
 
-    fs.writeFile('db/data.csv', head.replace(/['"]+/g, '') + '\n', (err) => {
+    fs.writeFile('db/data.csv', head.replace(/['"]+/g, '') + listBooks.replace(/['"]+/g, '') + '\n', (err) => {
         if (err) throw new Error('Could not be saved')
     });
 
-    fs.writeFile('db/data.csv', listBooks.replace(/['"]+/g, '') + '\n', { flag: 'a' }, (err) => {
-        if (err) throw new Error('Could not be saved')
-    });
 }
 
 const deleteDB = (listBooks) => {
 
     let head = 'isbn,title,author\n';
 
-    fs.writeFile('db/data.csv', head.replace(/['"]+/g, ''), (err) => {
+    fs.writeFile('db/data.csv', head.replace(/['"]+/g, '') + '\n', (err) => {
         if (err) throw new Error('Could not be saved')
     });
 

@@ -1,19 +1,18 @@
-const transform = require('../helpers/transformData.js');
+const formater = require('../helpers/formaterData.js');
 const isbnValidated = require('../helpers/validateIsbn.js');
-const accessData = require('../funcionesDB/dao.js');
-const colors = require('colors')
+const accessData = require('../functonsDB/dao.js');
+const colors = require('colors');
 
 
 let listBooks = [];
 
 const createBook = (isbn, title, author) => {
-
-    
+  
     validate = isbnValidated.validateIsbn(isbn);
     
     if (!validate) {
 
-        console.log(`${isbn} not valid, Please enter a valid ISBN`.red)
+        console.log(`${isbn} not valid, Please enter a valid ISBN`.red);
         return false;
     }
     listBooks = accessData.uploadLisBook();
@@ -28,15 +27,14 @@ const createBook = (isbn, title, author) => {
 
     if (index >= 0) {
 
-        console.log(`The ISBN: ${isbn} entered already exists`)
+        console.log(`The ISBN: ${isbn} entered already exists`.red)
 
         return false;
 
     } else {
 
         listBooks = book;
-        listBooks = transform.transformData(listBooks);
-        console.log(listBooks)
+        listBooks = formater.formaterData(listBooks);
         accessData.saveDB(listBooks);
 
         return true;
@@ -53,21 +51,27 @@ const getListBooks = () => {
 
 const updateBook = (isbn, title = '', author = '') => {
 
+    if (title.length === 0 && author.length === 0){
+
+        console.log('please enter data to update'.red);
+        return false;
+
+    }
+
     listBooks = accessData.uploadLisBook();
 
     let index = listBooks.findIndex(task => task.isbn === isbn);
 
     if (index >= 0) {
 
-        if (title.length > 0) {
+        if (title.length != 0) {
             listBooks[index].title = title;
         }
-        if (author.length > 0) {
+        if (author.length != '' ) {
             listBooks[index].author = author;
         }
 
-        listBooks = transform.transformData(listBooks);
-        console.log(listBooks);
+        listBooks = formater.formaterData(listBooks);
         accessData.updateDB(listBooks);
 
         return true;
@@ -90,8 +94,8 @@ const deleteBook = (isbn) => {
         return false;
     } else {
         listBooks = newListBooks;
-        listBooks = transform.transformData(listBooks);
-        accessData.deleteDB(listBooks);
+        listBooks = formater.formaterData(listBooks);
+        accessData.updateDB(listBooks);
         return true;
     }
 
