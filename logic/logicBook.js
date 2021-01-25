@@ -1,68 +1,23 @@
-const fs = require('fs');
-
-// const converter = require('json-2-csv');
-// const csv1 = require('csv-parser');
-
-// const csv = require('csvtojson');
-
-const csvToJson = require('convert-csv-to-json');
-
-const { Parser } = require('json2csv');
-
 const transform = require('../helpers/transformData.js');
-
+const isbnValidated = require('../helpers/validateIsbn.js');
+const accessData = require('../funcionesDB/dao.js');
+const colors = require('colors')
 
 
 let listBooks = [];
 
-// const transformData = () => {
-
-//     const json2csvParser = new Parser({ header: false });
-//     let csv = json2csvParser.parse(listBooks);
-
-//     listBooks = csv;
-
-// }
-const saveDB = () => {
-
-    fs.writeFile('db/data.csv', listBooks.replace(/['"]+/g, '') + '\n', { flag: 'a' }, (err) => {
-        if (err) throw new Error('Could not be saved')
-    });
-
-    return true;
-}
-const updateDB = () => {
-
-    let head = 'isbn,title,author';
-
-    fs.writeFile('db/data.csv', head.replace(/['"]+/g, '') + '\n', (err) => {
-        if (err) throw new Error('Could not be saved')
-    });
-
-    const json2csvParser = new Parser({ header: false });
-    let csv = json2csvParser.parse(listBooks);
-
-    fs.writeFile('db/data.csv', csv.replace(/['"]+/g, '') + '\n', { flag: 'a' }, (err) => {
-        if (err) throw new Error('Could not be saved')
-    });
-}
-// carga de datos
-const uploadLisBook = () => {
-
-    listBooks = csvToJson.fieldDelimiter(',').formatValueByType().getJsonFromCsv('db/data.csv');
-
-}
-
-
-
-
-
-
-
 const createBook = (isbn, title, author) => {
 
-    uploadLisBook();
+    
+    validate = isbnValidated.validateIsbn(isbn);
+    
+    if (!validate) {
 
+        console.log(`${isbn} not valid, Please enter a valid ISBN`.red)
+        return false;
+    }
+    listBooks = accessData.uploadLisBook();
+    
     let book = {
         isbn,
         title,
@@ -76,12 +31,13 @@ const createBook = (isbn, title, author) => {
         console.log(`The ISBN: ${isbn} entered already exists`)
 
         return false;
-    
+
     } else {
 
         listBooks = book;
         listBooks = transform.transformData(listBooks);
-        saveDB();
+        console.log(listBooks)
+        accessData.saveDB(listBooks);
 
         return true;
     }
@@ -91,26 +47,28 @@ const createBook = (isbn, title, author) => {
 
 const getListBooks = () => {
 
-    uploadLisBook();
-    return listBooks;
+    return listBooks = accessData.uploadLisBook();
 
 }
 
-const updateBook = (isbn, title, author) => {
+const updateBook = (isbn, title = '', author = '') => {
 
-    uploadLisBook();
-
-    console.log(listBooks)
+    listBooks = accessData.uploadLisBook();
 
     let index = listBooks.findIndex(task => task.isbn === isbn);
 
     if (index >= 0) {
 
-        listBooks[index].title = title;
-        listBooks[index].author = author;
-        console.log(listBooks)
+        if (title.length > 0) {
+            listBooks[index].title = title;
+        }
+        if (author.length > 0) {
+            listBooks[index].author = author;
+        }
 
-        updateDB();
+        listBooks = transform.transformData(listBooks);
+        console.log(listBooks);
+        accessData.updateDB(listBooks);
 
         return true;
 
@@ -124,7 +82,7 @@ const updateBook = (isbn, title, author) => {
 
 const deleteBook = (isbn) => {
 
-    uploadLisBook();
+    listBooks = accessData.uploadLisBook();
 
     let newListBooks = listBooks.filter(task => task.isbn !== isbn);
 
@@ -132,16 +90,16 @@ const deleteBook = (isbn) => {
         return false;
     } else {
         listBooks = newListBooks;
-        updateDB();
+        listBooks = transform.transformData(listBooks);
+        accessData.deleteDB(listBooks);
         return true;
-
     }
 
 }
 
 const getSearchBook = (isbn) => {
 
-    uploadLisBook();
+    listBooks = accessData.uploadLisBook();
 
     let index = listBooks.findIndex(task => task.isbn === isbn);
 

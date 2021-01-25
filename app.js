@@ -13,7 +13,8 @@ switch (comand) {
 
         let task = logicBook.createBook(argv.isbn, argv.title, argv.author);
 
-        console.log(task)
+        console.log(task);
+
         break;
 
     case 'read':

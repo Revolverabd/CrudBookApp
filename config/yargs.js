@@ -23,9 +23,17 @@ const argv = require('yargs')
         author
     })
     .command('update', 'Update a book in the DB', {
-        isbn,
-        title,
-        author
+        isbn: {
+            command: true,
+            alias: 'i'
+        },
+        title: {
+            alias: 't'
+        },
+
+        author: {
+            alias: 'a'
+        }
     })
     .command('delete', 'Delete a book in the DB', {
         isbn,
